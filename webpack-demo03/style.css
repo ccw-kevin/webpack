@@ -1,0 +1,13 @@
+@import './init.css'
+
+.hello {
+	height: 100px;
+	width: 100px;
+	background: red;
+	transform: translate(100px, 100px);
+}
+.avator {
+	width: 100px;
+	height: 100px;
+	transform: translate(100px, 100px);
+}
