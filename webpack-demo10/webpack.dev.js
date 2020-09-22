@@ -1,11 +1,22 @@
-// 测试配置
-const { merge } = require('webpack-merge')
-const common = require('./webpack.common.js')
+const webpack = require('webpack')
+const { merge } = require('webpack-merge');
+const commonConfig = require('./webpack.common.js')
 
-module.exports = merge(common, {
+const devConfig = {
 	mode: 'development',
-	devtool: 'inline-source-map',
+	optimization: {
+		usedExports: true
+	},
+	devtool: 'cheap-module-eval-source-map',
 	devServer: {
-		contentBase: './dist'
-	}
-})
+		// contentBase: path.join(__dirname, 'dist'),
+		compress: true,
+		port: 9999,
+		hot: true
+	},
+	plugins: [
+		// hot module replacement HMR
+		new webpack.HotModuleReplacementPlugin()
+	]
+}
+module.exports = merge(commonConfig, devConfig)
