@@ -1,7 +1,7 @@
-export function square(x) {
-	return x * x
+export const add = (x, y) => {
+	console.log(x + y)
 }
 
-export function cube(x) {
-	return x * x * x
+export const cube = (a) => {
+	console.log(a * a * a)
 }

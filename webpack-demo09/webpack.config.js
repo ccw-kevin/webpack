@@ -3,20 +3,17 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const webpack = require('webpack')
 module.exports = {
-	// mode: 'development',
-	// optimization: {
-	// 	usedExports: true
-	// },
-	mode: 'production',
+	mode: 'development',
+	devtool: 'cheap-module-eval-source-map',
+	// mode: 'production',
+	// devtool: 'cheap-module-source-map',
 	entry: {
 		app: './src/index.js'
 	},
 	output: {
 		filename: '[name].bundle.js',
-		path: path.resolve(__dirname, 'dist'),
-		publicPath: '/' // 确保server.js 能找到对应的资源文件
+		path: path.resolve(__dirname, 'dist')
 	},
-	devtool: 'inline-source-map',
 	devServer: {
 		// contentBase: './dist'
 		contentBase: path.join(__dirname, 'dist'),
@@ -29,6 +26,9 @@ module.exports = {
 			test: /\.css$/,
 			use: ['style-loader', 'css-loader']
 		}]
+	},
+	optimization: {
+    usedExports: true
 	},
 	plugins: [
 		// 自动清理打包文件
