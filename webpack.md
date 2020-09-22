@@ -387,7 +387,7 @@ module.exports = {
 >> })
 >> 
 >> ```
->* <font color="blue">`HotModuleRelacement` </font> 热模块更新 他是属于webpack的一个内置插件
+## <font color="blue">`HotModuleRelacement` </font> 热模块更新 他是属于webpack的一个内置插件
 >* const webpack = require('webpack')
 >* new webpack.HotModuleReplacementPlugin()
 >
@@ -407,6 +407,60 @@ module.exports = {
 >> 
 >> ```
 >> 
+
+## Tree Shaking
+>* 只支持ES Module 的引入模式，不支持commonJs的模式
+>
+>* Tree Shaking 值在<font color=red> `mode: 'development' `</font>模式是不生效的,tree shaking 只在<font color=red>`mode: 'production'`</font> 生效
+
+```js
+// 举个例子🌰 `webpack-demo09`
+// development
+plugins: [
+  optimization: {
+   usedExports: true
+  }
+]
+update: package.json 文件
+"sideEffects": false
+
+// production
+update: package.json 文件
+"sideEffects": false
+```
+
+## production 和 development 配置
+>  如何把 生产环境的配置和测试环境的配置单独分离出来
+>> *  <font size=4 color=blue>生产配置：`prodConfig`</font>
+>> 
+>> ```js 
+>> const prodConfig = {
+>>	  mode: 'production',
+>>	  devtool: 'cheap-module-source-map'
+>> }
+>> ```
+>> 
+>> *  <font size=4 color=blue>测试配置：`devConfig`</font>
+>> 
+>> ```js 
+>> mode: 'development',
+>>	optimization: {
+>>		usedExports: true
+>>	},
+>>	devtool: 'cheap-module-eval-source-map',
+>>	devServer: {
+>>		// contentBase: path.join(__dirname, 'dist'),
+>>		compress: true,
+>>		port: 9999,
+>>		hot: true
+>>	},
+>>	plugins: [
+>>		// hot module replacement HMR
+>>		new webpack.HotModuleReplacementPlugin()
+>>	]
+>> ```
+
+
 
 ## Babel [官网](https://babeljs.io/) <font size=4 color=red>`Babel is a JavaScript compiler.`</font>
 
@@ -463,77 +517,4 @@ options: {
   "useESModules": false,
   "version": "7.0.0-beta.0"
 }]]
-```
-
-
-1. 11
-	* hahha 
-2. 323232
-	* hhahah
-3. 34444
-	* hofhaodhfa
-
-> 第一层
-
-> 地方是非得失
->> 第二层
->>> 第三层
->>> 
-
- **我是加粗**
- *倾斜*
- ***倾斜加粗***
- 
-### 下面是换行
- 
- ---
- 
- ~~删除线~~
-
-
-* 一级无序列表内容
-
-   1. 二级有序列表内容
-	2. 二级有序列表内容
-	3. 二级有序列表内容
-
-	
-|  表头   | 表头  |
-|  ----  | ----  |
-| 单元格  | 单元格 |
-| 单元格  | 单元格 |
-
-
-
-```javascript
-<font color='red'>
-111
-</font>
-```
-
-
-<table><tr><td bgcolor='red'>22222</td></tr></table>
- 
- 
-![webpack分享知识点](./webpack.png "webpack")
-
-[baidu](https://www.baidu.com)
- 
-<a href="https://www.jianshu.com/u/1f5ac0cf6a8b" target="_blank">简书</a>
-
-
-```javascript
-function show() {
-	console.log('1111')
-}
-console.log('1111')
-
-```
-`alert('hello')`
-
-```javascript
-$(document).ready(function () {
-    alert('RUNOOB');
-});
-
 ```
