@@ -431,16 +431,17 @@ update: package.json 文件
 
 ## production 和 development 配置
 >  如何把 生产环境的配置和测试环境的配置单独分离出来
->> *  <font size=4 color=blue>生产配置：`prodConfig`</font>
+>> *  <font size=3 color=blue>生产配置：`prodConfig`</font>
 >> 
 >> ```js 
+>> // 举个例子🌰 `webpack-demo10`
 >> const prodConfig = {
 >>	  mode: 'production',
 >>	  devtool: 'cheap-module-source-map'
 >> }
 >> ```
 >> 
->> *  <font size=4 color=blue>测试配置：`devConfig`</font>
+>> *  <font size=3 color=blue>测试配置：`devConfig`</font>
 >> 
 >> ```js 
 >> mode: 'development',
@@ -460,6 +461,46 @@ update: package.json 文件
 >>	]
 >> ```
 
+## webpack 和 Code Splitting
+> webpack与 Code Splitting 不是耦合的。可以单独使用，webpack让code splitting的使用更加简单
+> 
+>* <font color=blue>第一种方式：</font>`entry` 入口引入第三方库文件，做并行加载
+>
+>> ```js
+>> // eg: `webpack-codeSplitting`
+>> 	entry : {
+>>   lodash: './src/lodash.js',
+>>   app: './src/index.js'
+>>  }
+>>  touch lodash.js
+>>  import _ from 'lodash'
+>>  window._ = _;
+>> ```
+>
+>* <font color=blue>第二种方式：Code Splitting</font> 
+>
+>> ```js
+>>  // 此时这种方式可以自动的把引入的第三方模块抽离出单独作为一个chunk
+>>  optizimation: {
+>>   splitChunks: {
+>>      chunks: 'all'
+>>   }
+>> }
+>> ```
+>* 第三种方式异步的加载  老的webpack可能需要使用<font color=blue>`babel-plugin-dynamic-import-webpack`</font>  ` < webpack4.2的版本` 来做异步的分割
+>
+>>```js
+>> function asyncComponent() {
+>>   return import('lodash').then(({ default: _ }) => {
+>> 		const element = docuemnt.createElement('div')
+>> 	     element.innerHTML = _.join(['Peng', 'Gent'], "--")
+>>       return element
+>>   })
+>> }
+>> asyncComponent().then(el => {
+>>   document.body.appendChild(el)
+>> })
+>>```
 
 
 ## Babel [官网](https://babeljs.io/) <font size=4 color=red>`Babel is a JavaScript compiler.`</font>
