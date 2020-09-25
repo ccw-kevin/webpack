@@ -185,7 +185,7 @@ module.exports = {
 * **`chunkFilename`**
 
 >1. 确定非入口文件输出的 chunk 文件名称  <font color='red'>`非 entry`</font>
->2. 配置 <font color='blue'>`[name].[contenthash].js` </font>可以监听文件的变化打包时可以改变hash，如果没有改变则hash不变
+>2. 配置 <font color='blue'>`[name].[contenthash].js` </font>可以监听文件的变化打包时可以改变hash，如果没有改变则hash不变,后面会具体讲到 `contenthash`的作用
 
 
 ```js
@@ -409,6 +409,7 @@ module.exports = {
 >> 
 
 ## Tree Shaking
+
 >* 只支持ES Module 的引入模式，不支持commonJs的模式
 >
 >* Tree Shaking 值在<font color=red> `mode: 'development' `</font>模式是不生效的,tree shaking 只在<font color=red>`mode: 'production'`</font> 生效
@@ -487,7 +488,7 @@ update: package.json 文件
 >>   }
 >> }
 >> ```
->* 第三种方式异步的加载  老的webpack可能需要使用<font color=blue>`babel-plugin-dynamic-import-webpack`</font>  ` < webpack4.2的版本` 来做异步的分割
+>* 第三种方式异步的加载  老的webpack可能需要使用<font color=blue>`babel-plugin-dynamic-import-webpack`</font>  ` < webpack4.3的版本` 来做异步的分割
 >
 >>```js
 >> function asyncComponent() {
@@ -497,11 +498,161 @@ update: package.json 文件
 >>       return element
 >>   })
 >> }
->> asyncComponent().then(el => {
+>> asyncComponent().then( el => {
 >>   document.body.appendChild(el)
 >> })
 >>```
 
+## SplitChunksPlugin
+>1.  **<font color=black>Since webpack v4, the `CommonsChunkPlugin` was removed in favor of `optimization.splitChunks`.</font>**
+>2.  **<font color=black>This configuration object represents the default behavior of the `SplitChunksPlugin`.</font>**
+> 
+>> ```js
+>>module.exports = {
+>>  // eg: webpack-splitChunksPlugin
+>>  optimization: {
+>>    splitChunks: {
+>>      chunks: 'async',  // 判断是否针对同步和异步的文件做单独打包 aysnc、all、initial
+>>      minSize: 30000, // 判断包的体积大于多少才抽离单独打包 单位byte eg: 30kb
+>>      maxSize: 0, // // 抽离的最大打包体积， eg：如果一个包有1MB，这里设置为 5000，拿它就会对此包做二次分割，一般没什么卵用
+>>      minChunks: 1, // 模块的引用次数
+>>      maxAsyncRequests: 5,
+>>      maxInitialRequests: 3,
+>>      automaticNameDelimiter: '~',
+>>      automaticNameMaxLength: 30,
+>>      name: true,
+>>      cacheGroups: {
+>>        vendors: {
+>>          test: /[\\/]node_modules[\\/]/,  // 判断引入的库是否在node_modules 下面
+>>          filename: 'vendors.js',  //(默认配置不包含这个) 匹配的条件打包出来的文件名字 chunks 必须为 initial 见图：
+>>          priority: -10
+>>        },
+>>        default: {
+>>          minChunks: 2,
+>>          priority: -20,
+>>          reuseExistingChunk: true
+>>        }
+>>      }
+>>    }
+>>  }
+>>};
+>> ```
+>  <font color=red>**注:**</font> `cacheGroups.vendors.filename: 'vender.js'` 这里需要注意`chunks：initial`,如果是异步加载模块
+> 
+> ![说明](./splitChunksCacheGroups.png)
+
+## Lazy Loading、chunk
+
+> 详情见：例子🌰: `webpack-lazyLoading`
+> 
+> 什么是chunk？
+
+## Bundle Analyse
+* 如图：
+![webpack提供的大包分析工具](./bundleAnalyse.png)
+
+* 详情例子🌰：`webpack-BundleAnalyse `
+
+> <font size=3 color=black> [官方推荐](https://github.com/webpack/analyse):  打包工具分析 **`webpack --profile --json > stats.json`** </font>
+> 
+> <font size=3 color=black>[推荐使用](https://github.com/webpack-contrib/webpack-bundle-analyzer)：**`webpack-bundle-analyzer`**</font>
+> [文章参考](https://medium.com/the-song-of-silence/%E4%BD%BF%E7%94%A8-webpack-%E4%BB%A3%E7%A0%81%E5%88%86%E5%89%B2-%E5%92%8C-%E9%AD%94%E6%9C%AF%E6%B3%A8%E9%87%8A-%E6%8F%90%E5%8D%87%E5%BA%94%E7%94%A8%E6%80%A7%E8%83%BD-f9e45aeb08c9)
+
+### Prefetch、Preload
+
+> `prefetch`: <font color=blue>resource is probably needed for some navigation in the future</font>
+> 
+> `preload`: <font color=blue>resource might be needed during the current navigation</font>
+> 
+> 利用缓存带来的性能提升比较有限，如果让页面加载的js文件的利用率最高。比如：有些交互的动作出现的页面或者可以可以使用懒加载的方式来处理：**<font color=blue>coverage</font>**  `/* webpackPreFethc: true */`
+
+## MiniCssExtractPlugin
+
+>1. npm install --save-dev mini-css-extract-plugin [链接](https://github.com/webpack-contrib/mini-css-extract-plugin)
+>
+>2. const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+>
+>3. plugins: [new MiniCssExtractPlugin()]
+>
+>4. module.rules
+>> ```js
+>> module: {
+>>  rules: [
+>> 	 test: \/*.css$\i,
+>>     use: [MiniCssExtractPlugin.loader, 'css-loader']
+>>  ]
+>>}
+>>```
+>>如果import两个css文件此时打包出来的效果为：
+>>
+>>`app.css`
+>>![bundle.css](./bundlecss.png)
+>>
+>>`index.js`
+>>![index.js](./bundlecssindex.png)
+>
+>5. 对CSS进行压缩  `npm install --save-dev optimize-css-assets-webpack-plugin` [文档链接](https://github.com/NMFR/optimize-css-assets-webpack-plugin)
+>>```js
+>> // 
+>> const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+>> 
+>> optimization: {
+>>   minimizer: [new OptimizeCSSAssetsPlugin({})]
+>> }
+>> 
+>>```
+>
+>6. 对所有css文件打包成一个*.css 文件; 如图：
+>![cacheGroups](./groupcss.png)
+>
+>7. 分模块对css打包 [官网参考](https://v4.webpack.js.org/plugins/mini-css-extract-plugin/)
+
+* <font color=red>注： 抽离css文件需要 修改`mode` 在 `production`, `packag.json->sideEffects: ["*.css"]` ; `mode`在`development`不受影响可以正常抽离</font>
+
+* <font color=red>注：`optimize-css-assets-webpack-plugin`  在测试环境`mode : development` css 不做压缩；`mode：production`</font>
+
+```js
+// 举个例子🌰：webpack-MiniCssExtractPlugin
+eg: 
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+// 设置压缩css
+optimization: {
+		minimizer: [new OptimizeCssAssetsPlugin({})],
+	}
+//  提取css
+new MiniCssExtractPlugin({
+	 filename: '[name].css', // 同步走这里
+	 chunkFilename: '[id].css', // 异步走这里
+})
+```
+## webpack 与 浏览器缓存(Caching)
+```js
+   // 举个例子🌰： `webpack-cache`
+   // webpack.dev.js
+   output: {
+     path: path.resolve(__dirname, 'dist'),
+     filename: '[name].js',
+     chunkfilename: '[name].js'
+   }
+   
+   // webpack.prod.js
+	output: {
+	  path: path.resolve(__dirname, 'dist'),
+	  filename: '[name].[contenthash].js',
+	  chunkfilename: '[name].[contenthash].js'
+	}
+```
+<font color=red>`注：`老版本的webpack会如果这样子配置`vendors`的hash值还是会有改变，因此需要做另外配置，此配置对新的webpack版本不会有影响</font> eg：
+```js
+// 此时会多产生一个runtime的文件
+optizimation: {
+  runtimeChunk: {
+    name: 'runtime'  
+  }
+}
+```
+![cacheImg](./cache.png)
 
 ## Babel [官网](https://babeljs.io/) <font size=4 color=red>`Babel is a JavaScript compiler.`</font>
 
@@ -511,7 +662,7 @@ update: package.json 文件
 >* <font color=blue>`@babel/preset-env:`</font> 实际是这个家伙把ES6的语法转换成了ES5 (语法转义)
 
 ```js
-// 举个例子🌰 `webpack-babel`
+// 举个例子🌰: `webpack-babel`
 第一步: npm install --save-dev babel-loader @babel/core
 第二步: 添加规则 module.rules
 第三步: babel-loader 它是与webpack的沟通的桥梁,而不是来做编译的 因此

@@ -6,13 +6,13 @@ module.exports = {
 	entry: {
 		app: './src/index.js'
 	},
-	// optimization: {
-	// 	splitChunks: {
-	// 		chunks: 'all'
-	// 	}
-	// },
+	optimization: {
+		splitChunks: {
+			chunks: 'all' // 判断是否针对同步和异步的文件做单独打包 aysnc、all、initial
+    }
+	},
 	output: {
-		filename: '[name].bundle.js',
+		filename: '[name].js',
 		// chunkFilename: '[name].bundle.js',
 		path: path.resolve(__dirname, 'dist')
 	},
