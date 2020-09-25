@@ -26,20 +26,17 @@ module.exports = {
 		{
         test: /\.m?js$/,
         exclude: /node_modules/,
-        use: {
+        use: [{
           loader: "babel-loader",
-       //    options: {
-       //    	"presets": [["@babel/preset-env", {
-					  // 	"targets": {
-					  //     "chrome": "67",
-					  //     "safari": "11.1"
-					  //   },
-					  // 	"useBuiltIns": "usage",
-					  // 	"corejs": "3.6.4"
-					  // }]]
-       //    }
-        }
-      },
+        }]
+     },
+     {
+     	test: require.resolve(path.resolve(__dirname, './index.js')),
+     	loader: 'imports-loader',
+     	options: {
+     		wrapper: true,
+     	}
+     },
       {
 				test: /\.css$/,
 				use: ['style-loader', 'css-loader']
@@ -48,6 +45,11 @@ module.exports = {
 	plugins: [
 		// 自动清理打包文件
 		new CleanWebpackPlugin(),
+
+	  new webpack.ProvidePlugin({
+	  	$: 'jquery',
+	  	_: 'lodash' // _join: ['lodash', 'join']
+	  }),
 		// 自动生成打包后的入口文件 default index.html
 		new HtmlWebpackPlugin({
 			title: '开发环境',

@@ -32,6 +32,8 @@
     "@babel/runtime": "^7.11.2",
     "@babel/runtime-corejs2": "^7.11.2",
     "@babel/runtime-corejs3": "^7.11.2",
+    "imports-loader": "^1.1.0",
+    "jquery": "^3.5.1",
     "lodash": "^4.17.20"
   }
 }

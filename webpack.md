@@ -654,6 +654,37 @@ optizimation: {
 ```
 ![cacheImg](./cache.png)
 
+## shimming(垫片)
+
+> <font size=3 color=black>`new webpack.ProvidePlugin()` [文档链接]
+(https://v4.webpack.js.org/plugins/provide-plugin/)</font>
+
+如图：
+![ProvidePlugin](./providePlugin.png)
+
+> <font color=blue>详情例子🌰见：</font> **`webpack-shimming`**
+> 
+
+### `imports-loader`  全局变量的定义 [文档链接](https://github.com/webpack-contrib/imports-loader#wrapper)
+
+* 1. npm install imports-loader --save
+* 2. 配置 loader 如图：<font color=red> `此图有误，或者版本不对`</font>
+![imports-loader](./imports-loader.png)  
+
+```js
+module: {
+  rules: [
+   {
+     test: require.resolve(path.resolve(_dirname, './index.js')) // 针对指定文件来做this的转换
+     loader: 'imports-loader',
+     options: {
+       wrappre: true
+     }
+   }
+  ]
+}
+```
+
 ## Babel [官网](https://babeljs.io/) <font size=4 color=red>`Babel is a JavaScript compiler.`</font>
 
 >* npm install --save-dev babel-loader @babel/core
