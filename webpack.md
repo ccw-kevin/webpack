@@ -507,36 +507,38 @@ update: package.json 文件
 >1.  **<font color=black>Since webpack v4, the `CommonsChunkPlugin` was removed in favor of `optimization.splitChunks`.</font>**
 >2.  **<font color=black>This configuration object represents the default behavior of the `SplitChunksPlugin`.</font>**
 > 
->> ```js
->>module.exports = {
->>  // eg: webpack-splitChunksPlugin
->>  optimization: {
->>    splitChunks: {
->>      chunks: 'async',  // 判断是否针对同步和异步的文件做单独打包 aysnc、all、initial
->>      minSize: 30000, // 判断包的体积大于多少才抽离单独打包 单位byte eg: 30kb
->>      maxSize: 0, // // 抽离的最大打包体积， eg：如果一个包有1MB，这里设置为 5000，拿它就会对此包做二次分割，一般没什么卵用
->>      minChunks: 1, // 模块的引用次数
->>      maxAsyncRequests: 5,
->>      maxInitialRequests: 3,
->>      automaticNameDelimiter: '~',
->>      automaticNameMaxLength: 30,
->>      name: true,
->>      cacheGroups: {
->>        vendors: {
->>          test: /[\\/]node_modules[\\/]/,  // 判断引入的库是否在node_modules 下面
->>          filename: 'vendors.js',  //(默认配置不包含这个) 匹配的条件打包出来的文件名字 chunks 必须为 initial 见图：
->>          priority: -10
->>        },
->>        default: {
->>          minChunks: 2,
->>          priority: -20,
->>          reuseExistingChunk: true
->>        }
->>      }
->>    }
->>  }
->>};
->> ```
+
+```js
+module.exports = {
+  // eg: webpack-splitChunksPlugin
+    optimization: {
+    splitChunks: {
+     chunks: 'async',  // 判断是否针对同步和异步的文件做单独打包 aysnc、all、initial
+     minSize: 30000, // 判断包的体积大于多少才抽离单独打包 单位byte eg: 30kb
+      maxSize: 0, // // 抽离的最大打包体积， eg：如果一个包有1MB，这里设置为 5000，拿它就会对此包做二次分割，一般没什么卵用
+      minChunks: 1, // 模块的引用次数
+      maxAsyncRequests: 5,
+      maxInitialRequests: 3,
+      automaticNameDelimiter: '~',
+      automaticNameMaxLength: 30,
+      name: true,
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,  // 判断引入的库是否在node_modules 下面
+          filename: 'vendors.js',  //(默认配置不包含这个) 匹配的条件打包出来的文件名字 chunks 必须为 initial 见图：
+          priority: -10
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    }
+  }
+};
+```
+
 >  <font color=red>**注:**</font> `cacheGroups.vendors.filename: 'vender.js'` 这里需要注意`chunks：initial`,如果是异步加载模块
 > 
 > ![说明](./splitChunksCacheGroups.png)
@@ -665,7 +667,7 @@ optizimation: {
 > <font color=blue>详情例子🌰见：</font> **`webpack-shimming`**
 > 
 
-### `imports-loader`  全局变量的定义 [文档链接](https://github.com/webpack-contrib/imports-loader#wrapper)
+###  全局变量的定义 `imports-loader` [文档链接](https://github.com/webpack-contrib/imports-loader#wrapper)
 
 * 1. npm install imports-loader --save
 * 2. 配置 loader 如图：<font color=red> `此图有误，或者版本不对`</font>
@@ -684,6 +686,11 @@ module: {
   ]
 }
 ```
+## webpack env
+
+例子详情见： <font color=red>`webpack-env`</font>
+
+例如，`--env.production` 或 `--env.NODE_ENV=local`（NODE_ENV 通常约定用于定义环境类型，查看这里）
 
 ## Babel [官网](https://babeljs.io/) <font size=4 color=red>`Babel is a JavaScript compiler.`</font>
 

@@ -7,7 +7,7 @@
     "*.css"
   ],
   "scripts": {
-    "build": "webpack --env.production --config webpack.prod.js",
+    "build": "webpack --config webpack.prod.js",
     "build:dev": "webpack --config webpack.dev.js",
     "dev": "webpack-dev-server --open --config webpack.dev.js",
     "Analyse": "webpack --profile --json > stats.json"
