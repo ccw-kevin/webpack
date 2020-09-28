@@ -17,6 +17,7 @@ module.exports = {
 				{
 					loader: 'css-loader',
 					options: {
+					 // importLoaders: 2, // 如果有引入的 css 文件，那么引入的文件还是需要走下面的css-loader去做解析
 						modules: true
 					}
 				},
@@ -27,7 +28,14 @@ module.exports = {
 				// 处理 图片
 				test: /\.(png|jpg|svg|gif)$/,
 				use: [
-					'file-loader'
+					{
+						loader: 'url-loader',
+						options: {
+							outputPath: 'images/',
+							name: '[name]_[hash:7].[ext]',
+							limit: 204800
+						}
+					}
 				]
 			}
 		]

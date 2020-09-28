@@ -1,23 +1,23 @@
 
 // 第二种方式
-// import _ from 'lodash'
+import _ from 'lodash'
 
-// console.log(_.join(['aa', 'bb', 'cc'], "-"))
+console.log(_.join(['aa', 'bb', 'cc'], "-"))
 
 
 /* 第三种方式 */
 
 // one
-function asyncComponent() {
-	return import(/* webpackChunkName: "lodash" */ 'lodash').then(({ default: _ }) => {
-		let element = document.createElement('div')
-		element.innerHTML = _.join(['aa', 'bb', 'cc'], '***')
-		return element
-	})
-}
-asyncComponent().then(el => {
-	document.body.appendChild(el)
-})
+// function asyncComponent() {
+// 	return import(/* webpackChunkName: "lodash" */ 'lodash').then(({ default: _ }) => {
+// 		let element = document.createElement('div')
+// 		element.innerHTML = _.join(['aa', 'bb', 'cc'], '***')
+// 		return element
+// 	})
+// }
+// asyncComponent().then(el => {
+// 	document.body.appendChild(el)
+// })
 
 
 // two

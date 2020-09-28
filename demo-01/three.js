@@ -8,4 +8,4 @@ function three () {
 	root.append(three)
 }
 
-// export default three
+export default three

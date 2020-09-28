@@ -6,4 +6,4 @@ function two() {
 	two.innerText = 'two'
 	root.append(two)
 }
-// export default two
+export default two

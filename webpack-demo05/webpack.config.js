@@ -9,7 +9,7 @@ module.exports = {
 		print: './src/print.js'
 	},
 	output: {
-		filename: '[name].bundle.js',
+		filename: '[name].[hash].bundle.js',
 		// publicPath: '/assets/',
 		path: path.resolve(__dirname, 'dist')
 	},

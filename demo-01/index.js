@@ -1,10 +1,8 @@
-// import one from './one.js'
-// import two from './two.js'
-// import three from './three.js'
+import one from './one'
+import two from './two'
+import three from './three'
 
-// new one()
-
-let root = document.getElementById('root')
+// let root = document.getElementById('root')
 
 new one()
 new two()

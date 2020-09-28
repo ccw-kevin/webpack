@@ -6,11 +6,11 @@ module.exports = {
 	entry: {
 		app: './src/index.js'
 	},
-	// optimization: {
-	// 	splitChunks: {
-	// 		chunks: 'all'
-	// 	}
-	// },
+	optimization: {
+		splitChunks: {
+			chunks: 'all'
+		}
+	},
 	output: {
 		filename: '[name].bundle.js',
 		// chunkFilename: '[name].bundle.js',

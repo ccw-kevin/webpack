@@ -8,5 +8,4 @@ function one () {
 	one.innerText = 'one'
 	root.append(one)
 }
-
-// export default one
+export default one

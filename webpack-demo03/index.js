@@ -2,7 +2,7 @@ import style from './style.css'
 import icon from './icon.jpg'
 import createImg from './createImg'
 
-createImg()
+// createImg()
 
 const root = document.getElementById('root')
 function component() {

@@ -53,13 +53,13 @@ new one()
 
 ## 2. what’s [webpack](https://webpack.js.org/)
 ### **webapck is a module bundler**
->1. 打包工具有哪些  <font color='blue'>`gulp、 grunt、 webapck`</font>
+>1. 什么是模块打包工具
 >
->2. 什么是模块打包工具
+>2. 打包工具有哪些  <font color='blue'>`gulp、 grunt、 webapck`</font>
 >
 >3. webpack 支持的模式 <font color='blue'>` ES Module、CommonJS、AMD、CMD `</font>
 >
->4. 查看webpack版本信息 `npm info webapck`
+>4. 查看webpack版本信息 `npx info webapck`
 >
 >5. npx webpack `index.js` 需要打包的入口
 
@@ -121,7 +121,7 @@ module.exports = {
     }
   }
 ```
->  **<font color='red'>注:</font>**  webpack小于<font color='red'>4.x</font>的时候，一般抽离的vendor作为单独的包来添加到起点`entry`的配置中，然后结合 `CommonsChunkPlugin `一起使用。但在4.x的版本中优化了次选项配置，而是使用`optimization.splitChunks`选项，将vender和主入口配置分开，作为单独的一个文件。
+>  **<font color='red'>注:</font>**  webpack小于<font color='red'>4.x</font>的时候，一般抽离的vendor作为单独的包来添加到起点`entry`的配置中，然后结合 `CommonsChunkPlugin `一起使用；但在4.x的版本中优化了次选项配置，而是使用`optimization.splitChunks`选项，将vender和主入口配置分开，作为单独的一个文件。
 
 ### 3.3. output
 * **`publicPath`**
@@ -138,7 +138,9 @@ output: {
   publicPath: '/assets/',
   chunkFilename: '[name].chunk.js'
 }
-// 此时页面加载的资源(js/png/css)为 /assets/4.chunk.js/background-image: url(/assets/spinner.png);
+// 此时页面加载的资源(js/png/css)为
+/assets/*.js
+background-image: url(/assets/*.png);
 
 CDN:
 output: {
@@ -210,6 +212,8 @@ module.exports = {
 >
 >* <font color='blue'>`Rule.include`</font> 指定设置一些需要使用此loader解析的模块； 如：`a.js`
 
+<font color=red size=4>注：`options.modules=true`</font>
+
 ```js
  // 举个例子🌰 `webpack-demo3`
 module: {
@@ -235,11 +239,11 @@ or
   }]
 }
 
-// 针对css文件的导入另一个css文件，如果我们需要把引入的文件从下到上去用loader 解析需要修改配置
+// 针对css文件的导入另一个css文件，如果我们需要把引入的文件从下到上去用loader 解析需要修改配置 [importLoader]
  use: ['style-loader',
   {
    loader: 'css-loader',
-   importLoader: 1,
+   importLoaders: 1,
    options: {
      modules: true // 模块化样式，文件使用的样式不会有耦合的情况
    }
@@ -247,6 +251,20 @@ or
  'postcss-loader']
 
 ```
+
+> <font color=blue>style-loader
+> 把翻译的css的文件挂在到HTML的header部分
+
+> css-loader
+> 会分析我们css文件中的关系来合并css文件
+
+> scss-loader/less-loader/stylus-loader
+> 把 `*.sass/less` 的文件编译成css文件
+> 
+> postcss-loader
+> 浏览器的兼容
+> css-loader 是有执行顺序的 从下到上从右到左 </font>
+> 
 > <font size='4' color='red'>注: [`postcss-loader`](https://v4.webpack.docschina.org/loaders/postcss-loader/)</font>、 <font size='4' color='red'>[`autoprefixer`](https://github.com/postcss/autoprefixer) </font>
 > 
 > 此时需要在`webpack.config.js` 同级目录创建touch `postcss.config.js` , 添加如下
@@ -388,8 +406,12 @@ module.exports = {
 >> 
 >> ```
 ## <font color="blue">`HotModuleRelacement` </font> 热模块更新 他是属于webpack的一个内置插件
->* const webpack = require('webpack')
->* new webpack.HotModuleReplacementPlugin()
+
+>* `const webpack = require('webpack')`
+>
+>* `new webpack.HotModuleReplacementPlugin()`
+>
+
 >
 >> ```js
 >> // 举个例子🌰 `webpack-demo08`
@@ -397,7 +419,7 @@ module.exports = {
 >>    hot: true,
 >>    hotOnly: true
 >> }
->> // 通过监听某一个模块的变化来达到模块的热更行
+>> // 通过监听某一个模块的变化来达到模块的热更新
 >> if(module.hot){
 >>	module.hot.accept('./number', ()=> {
 >>		document.body.removeChild(document.getElementById('number'))
@@ -407,6 +429,7 @@ module.exports = {
 >> 
 >> ```
 >> 
+>* <font color=red>热更新js 为什么需要写 `module.hot` 来做判断，而CSS不需要呢？</font>
 
 ## Tree Shaking
 
@@ -469,7 +492,7 @@ update: package.json 文件
 >
 >> ```js
 >> // eg: `webpack-codeSplitting`
->> 	entry : {
+>> entry : {
 >>   lodash: './src/lodash.js',
 >>   app: './src/index.js'
 >>  }
@@ -488,7 +511,7 @@ update: package.json 文件
 >>   }
 >> }
 >> ```
->* 第三种方式异步的加载  老的webpack可能需要使用<font color=blue>`babel-plugin-dynamic-import-webpack`</font>  ` < webpack4.3的版本` 来做异步的分割
+>* <font color=blue>第三种方式异步的加载:</font> 老的webpack可能需要使用<font color=blue>`babel-plugin-dynamic-import-webpack`</font>  ` < webpack4.3的版本` 来做异步的分割
 >
 >>```js
 >> function asyncComponent() {
