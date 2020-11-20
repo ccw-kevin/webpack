@@ -1158,4 +1158,5 @@ class MyPlugin {
 	}
 }
 ```
- [撸一个插件](https://juejin.cn/post/6844903713312604173#heading-16)
+
+**移除webpack打包后的大量注释：** [撸一个插件可参考](https://juejin.cn/post/`6844903713312604173#heading-16)
