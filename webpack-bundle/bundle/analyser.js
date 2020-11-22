@@ -1,12 +1,11 @@
-// 1. 要想分析某一个模块那么我们就需要拿到这个文件
-// 2. 读取此模块文件，并输出查看是否一样
-// 3. 高亮在控制台显示代码 npm install cli-highlight
-// 4. 转化为抽象语法树: npm install @babel/parser
-// 5. 分析抽象语法树，遍历Node的节点: npm install @babel/traverse --save
-// 6 dependencies 打包的时候需要存储绝对路径，不然找不到(或者相对于bundle的相对路径)
-// 7 需要把ast的需要转换为浏览器的识别语: npm install @babel/core --save
-// 8 我们使用了es6的语法，所以需要转换下,兼容浏览器: npm install --save-dev @babel/preset-env
-// 9.对多个模块的依赖分析 makeDependenciesGraph
+// 1. 拿到文件，并读取
+// 2. 高亮在控制台显示代码 npm install cli-highlight
+// 3. 对文件的读取并转化为AST语法树做分析: npm install @babel/parser
+// 4. 分析抽象语法树，找到对应的节点: npm install @babel/traverse --save
+// 5. 路径组装，作为可适用于的打包识别的路径: dependencies 打包的时候需要存储绝对路径，不然找不到(或者相对于bundle的相对路径)
+// 6. 转换AST的语法树可作为浏览器识别的语法: npm install @babel/core --save
+// 8. 针对浏览器的低版本做ES6的兼容: npm install --save-dev @babel/preset-env
+// 9. 涉及到多个模块的引入分析，需要对所有模块的遍历及递归 makeDependenciesGraph
 
 const path = require('path');
 const fs = require('fs');
@@ -16,8 +15,8 @@ const core = require("@babel/core");
 
 // 对单个依赖模块的分析
 const moduleAnalyser = (filename) => {
-	const constent = fs.readFileSync(filename, 'utf-8')
-	const ast = babelParser.parse(constent, {
+	const content = fs.readFileSync(filename, 'utf-8')
+	const ast = babelParser.parse(content, {
 		sourceType: 'module' // 可支持 ES Module的模式
 	})
 	// console.log(ast.program.body)
@@ -38,9 +37,9 @@ const moduleAnalyser = (filename) => {
 		}
 	});
 	// console.log(dependencies)
-	const code = core.transformFromAst(ast, null, {
+	const { code } = core.transformFromAst(ast, null, {
 		presets: ["@babel/preset-env"]
-	}).code
+	})
 	// console.log(code)
 	return {
 		filename,
@@ -100,8 +99,8 @@ const makeDependenciesGraphBeta = entry => {
 	return graph
 }
 
-// 生成浏览器可运行的代码
 
+// 生成浏览器可运行的代码
 const generateCode = (entry) => {
 	const graph = JSON.stringify(makeDependenciesGraph(entry))
 	// 1. 没有require() 函数，我们需要构造一个
@@ -123,7 +122,7 @@ const generateCode = (entry) => {
 
 				return exports;
 			};
-			require(${entry})
+			require('${entry}')
 		})(${graph});
 	`
 }
@@ -136,7 +135,7 @@ const code = generateCode('./src/index.js')
 // console.log(moduleInfo)
 
 // console.log(graphInfo)
-// console.log(code)
+console.log(code)
 
 
 
