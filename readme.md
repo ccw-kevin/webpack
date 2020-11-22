@@ -411,8 +411,7 @@ module.exports = {
 >> 
 >> ```
 
-## <font color="blue">`HotModuleRelacement` </font> 热模块更新 他是属于webpack的一个内置插件
-
+## <font color="blue">`HotModuleRelacement` </font> 热模块更新
 >* `const webpack = require('webpack')`
 >
 >* `new webpack.HotModuleReplacementPlugin()`
