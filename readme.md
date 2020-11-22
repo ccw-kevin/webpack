@@ -1,6 +1,6 @@
 
 #<center>Webpack</center>
-<div align='right'><font size='4' color='blue'>Author: Peng Geng</font></div>
+<!--<div align='right'><font size='4' color='blue'>Author: Peng Geng</font></div>-->
 
 ## 1. webpack分享图谱
 ![webapck分享](./webpack.png)
@@ -1144,19 +1144,194 @@ Object.keys(configs.entry).forEach( item => {
 
 ## [Plugin](https://v4.webpack.js.org/api/plugins/)
 
+
+* **Tapable**  这个是一个webpack的核心库文件，webpack的许多对象都是继承它，并且他向外暴露了`tap`、`tapAsync`、`tapPromise`等方法来供使用自定义的构建步骤
+
+* **compiler** webpack的主要引擎
+* webpack流程图
+
+![webpackplugin-life](./webpack-plugin-life.jpg)
+
+详情例子: **`webpack-plugin`**
+
 ```js
-class MyPlugin {
-	apply(complier) {
-	 ...
-	 complier.hooks.complie.tap('myplugin', (compilation) => {
-	 	console.log('todo compilation')
-	 })
-	 complier.hooks.emit.tapAsync('myplugin', (compilation, cb) => {
-	 	...
-	 	cb()
-	 })
+class myPlugin {
+	// constructor() {
+	// 	console.log('开始plugin编写。。。。。')
+	// }
+	apply(compiler) {
+
+		// compiler 是webpack的实例，里面包含webpack的各种配置文件，并包含一些hooks
+		// compiler 存放了我们配置里的所有类容，和打包相关的类容
+		// compilation 是存放的是这一次的打包类容相关的类容
+		compiler.hooks.compile.tap('MyPlugin', (compilation) => {
+			console.log('todo .....compilation')
+		})
+		// tapAsync(pluginName, function)
+		// 输出到	dist 目录之前
+		compiler.hooks.emit.tapAsync('MyPlugin', (compilation, cb) => {
+			console.log('tapAsync.......')
+			compilation.assets['copyright.txt'] = {
+				source: function() {
+					return 'copyright by PengGeng'
+				},
+				size: function() {
+					return 21
+				}
+			}
+			cb()
+		})
+		// promise
+		compiler.hooks.run.tapPromise('promiesAsync', (compilation, cb) => {
+			return new Promise( resolve => {
+				return setTimeout(resolve, 1000)
+			}).then(() => {
+				console.log('promise......')
+			})
+		})
+		// 在webpack中 entry被处理过后调用
+		compiler.hooks.entryOption.tap('MyPlugin', (context, entry) => {
+	  	/* ... */
+	  	console.log(entry)
+		});
 	}
 }
+module.exports = myPlugin
+
+```
+* **[clean-webpack-plugin](https://github.com/johnagan/clean-webpack-plugin)**
+
+* **移除webpack打包后的大量注释：** [撸一个插件可参考](https://juejin.cn/post/6844903713312604173#heading-16)
+
+## Bundle
+
+举个例子: **`webpack-bundle`**
+
+* 对文件分析的步骤
+
+> 1. 拿到需要分析的文件， 依赖 <font color=blue> `node fs` </font>
+> 2. 对文件的读取并转化为AST语法树做分析 <font color=blue>  `npm install @babel/parser` </font>
+> 3. 分析抽象语法树，找到对应的节点(Node: <font color=blue>`ImportDeclaration`</font>) <font color=blue>`npm install @babel/traverse --save`</font>
+> 4. 路径组装，作为可适用于的打包识别的路径 <font color=blue>`node path`</font>
+> 5. 转换AST的语法树可作为浏览器识别的语法 <font color=blue>`npm install @babel/core --save`</font>
+> 6. 针对浏览器的低版本做ES6的兼容 <font color=blue>`npm install --save-dev @babel/preset-env`</font>
+> 7. 涉及到多个模块的引入，需要对所有模块的遍历及递归 <font color=blue> `create function: makeDependenciesGraph` </font>
+
+
+```js
+const path = require('path');
+const fs = require('fs');
+const babelParser = require('@babel/parser');
+const traverse = require("@babel/traverse").default;
+const core = require("@babel/core");
+
+// 对单个依赖模块的分析
+const moduleAnalyser = (filename) => {
+	const content = fs.readFileSync(filename, 'utf-8')
+	const ast = babelParser.parse(content, {
+		sourceType: 'module' // 可支持 ES Module的模式
+	})
+	// console.log(ast.program.body)
+	let dependencies = {} // 需要存储对象，所以需要类型为{}
+	traverse(ast, {
+		// 找到 ImportDeclaration类型的node 节点
+		ImportDeclaration({ node }) {
+			// node 节点下有source节点，节点下有个value的值对应的模块名字
+			// console.log(node)
+			const dirname = path.dirname(filename)
+			console.log(dirname)
+			// path.join(dirname, node.source.value) =》 src/message.js
+			// 需要增加当前的路径 './'
+			const newFilePath = './' + path.join(dirname, node.source.value)
+			// console.log(newFilePath)
+			// dependencies.push(node.source.value)
+			dependencies[node.source.value] = newFilePath
+		}
+	});
+	// console.log(dependencies)
+	const { code } = core.transformFromAst(ast, null, {
+		presets: ["@babel/preset-env"]
+	})
+	// console.log(code)
+	return {
+		filename,
+		dependencies,
+		code
+	}
+}
+
+// 多个文件的循环分析
+const makeDependenciesGraphBeta = entry => {
+	const graph = {}
+	const analyser = entry => {
+		const { filename, dependencies, code } = moduleAnalyser(entry)
+		graph[filename] = {
+			dependencies,
+			code
+		}
+		if(Object.getOwnPropertyNames(dependencies).length) {
+			for(let i in dependencies) {
+				if(!graph[dependencies[i]]) {
+					analyser(dependencies[i])
+				}
+			}
+		}
+	}
+	analyser(entry)
+	return graph
+}
+
+// 生成浏览器可运行的代码 函数的构造
+// 分析打包出来的文件：browserSourceCode.js
+// 1. 没有require() 函数，我们需要构造一个
+// 2. 查看code的内容后，会执行一个require('./message.js')的类容，因此我们需要去查找此内容，并执行
+// 3. 根据传入的module，找到对应对象的获取属性key: dependdencies的key的内容 
+// 4. 返回 require(graph[module].dependencies[relativePath])
+// 5. 闭包返回三个参数 require [function]; export [Object]; code [String]
+// 6. 输出代码直接在控制台运行
+const generateCode = (entry) => {
+	const graph = JSON.stringify(makeDependenciesGraph(entry))
+	return `
+		(function(graph){
+			function require(module) {
+				function localRequire(relativePath) {
+					return require(graph[module].dependencies[relativePath])
+				}
+				var exports = {};
+				(function(require, exports, code){
+					eval(code)
+				})(localRequire, exports, graph[module].code);
+
+				return exports;
+			};
+			require('${entry}')
+		})(${graph});
+	`
+}
+const code = generateCode('./src/index.js')
+
 ```
 
-**移除webpack打包后的大量注释：** [撸一个插件可参考](https://juejin.cn/post/`6844903713312604173#heading-16)
+* 整个模块的ast
+
+![webpack-bundle-one](./webpack-bundle-one.png)
+
+* 具体代码的body
+
+![wbpack-bundle-two](./webpack-bundle-two.jpg)
+
+* 绝对路径
+
+![webpack-bundle-three](./webpack-bundle-three.png)
+
+* ast 转换为 浏览器识别的语法,对 **`index.js`** 模块打包后的代码
+
+![webpack-bundle-four](./webpack-bundle-four.png)
+
+* 对多个文件分析，生成依赖树图谱 (dependenciesGraph)
+
+![webpack-bundle-five](./webpack-bundle-five.png)
+
+* 打包出通用的代码，可在浏览器上运行
+
+![webpack-bundle-six](./webpack-bundle-six.png)
